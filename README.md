@@ -1,2 +1,0 @@
-# Bottium
-Multipurpose discord bot
