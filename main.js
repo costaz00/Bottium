@@ -1,4 +1,4 @@
-.jsconst { Player } = require('discord-player');
+const { Player } = require('discord-player');
 const { Client, GatewayIntentBits } = require('discord.js');
 
 global.client = new Client({
