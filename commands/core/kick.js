@@ -1,50 +1,59 @@
-module.exports = {}
+const discord = require('discord.js')
 
-import { GuildMember } from 'discord.js'
-import { ICommand } from 'wokcommands'
+const {
+    MessageEmbed
+} = require('discord.js');
 
-export default {
-  category: 'Moderation',
-  description: 'Kicks a user',
+module.exports.run = async (client, message, args) => {
+    if (!message.member.permissions.has("KICK_MEMBERS")) return message.channel.send("You don't have permission to kick people");
+    if (!message.guild.me.permissions.has("KICK_MEMBERS")) return message.channel.send("I don't have permission to kick people.");
 
-  // permissions: ['ADMINISTRATOR'],
-  requireRoles: true,
+    if (!args[0]) return message.channel.send("Specify a member.");
 
-  slash: 'both',
-  testOnly: true,
+    let member = message.mentions.members.first() || message.guild.members.cache.get(args[0]) || message.guild.members.cache.find(x => x.user.username.toLowerCase() === args.slice(0).join(" ") || x.user.username === args[0]);
 
-  guildOnly: true,
+    // Just add the below line
 
-  minArgs: 2,
-  expectedArgs: '<user> <reason>',
-  expectedArgsTypes: ['USER', 'STRING'],
+    if (!member) return message.channel.send("That was not a member.")
 
-  callback: ({ message, interaction, args }) => {
-    const target = message
-      ? message.mentions.members?.first()
-      : (interaction.options.getMember('user') as GuildMember)
-    if (!target) {
-      return 'Please tag someone to kick.'
+    // If member doesn't return a member, then it will kill it
+
+
+    if (member.id == client.user.id) {
+        return message.channel.send("I can't kick myself.")
     }
 
-    if (!target.kickable) {
-      return {
-        custom: true,
-        content: 'Cannot kick that user.',
-        ephemeral: true,
-      }
+    if (message.member.roles.highest.comparePositionTo(message.mentions.members.first().roles.highest) < 1) {
+        return message.channel.send("I have lower role.");
     }
 
-    args.shift()
-    const reason = args.join(' ')
+    if (message.member.id === member.id) return message.channel.send("I can't kick you.");
 
-    target.kick(reason)
-
-    return {
-      custom: true,
-      content: `You kicked <@${target.id}>`,
-      ephemeral: true,
+    if (message.mentions.roles) {
+        return;
     }
-  },
-} as ICommand
 
+    var args2 = args.slice(1).join(" ");
+    if (!args2) {
+        var args2 = "No reason provided.";
+    }
+    await member.kick({
+        reason: `${args2}`
+    })
+    const embed = new MessageEmbed()
+        .setTitle("Member Kicked")
+        .setDescription(`> ${member} just got kicked.`)
+        .setColor('#00ff00')
+        .setFooter(`Requested by ${message.author.username}`)
+        .setTimestamp();
+
+    message.channel.send({
+        embeds: [embed]
+    })
+}
+
+
+module.exports.config = {
+    name: "kick",
+    aliases: []
+}
