@@ -29,7 +29,8 @@ readdirSync('./commands/').forEach(dirs => {
         console.log(`-> [Loaded Command] ${command.name.toLowerCase()}`);
         client.commands.set(command.name.toLowerCase(), command);
         delete require.cache[require.resolve(`../commands/${dirs}/${file}`)];
-        } else console.log(`[failed Command]  ${command.name.toLowerCase()}`)
+        } 
+        //else console.log(`[failed Command]  ${command.name.toLowerCase()}`);
     };
 });
 
